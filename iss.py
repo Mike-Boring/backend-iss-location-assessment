@@ -46,6 +46,8 @@ def find_space_station():
 def run_the_turtle():
     screen = turtle.Screen()
     screen.register_shape('iss.gif')
+    screen.setup(720, 360)
+    screen.bgpic("map.gif")
     iss = turtle.Turtle()
     iss.shape('iss.gif')
     iss.setheading(90)  # face upwards
@@ -56,8 +58,17 @@ def run_the_turtle():
     print('iss lat:', iss_current_latitude)
     iss.pendown()
 
-    screen.setup(720, 360)
-    screen.bgpic("map.gif")
+    # Map Indianapolis on map
+    indianapolis_lat = 39.7684
+    indianapolis_lon = -86.1581
+
+    location = turtle.Turtle()
+    location.penup()
+    location.color('yellow')
+    location.goto(float(indianapolis_lon), float(indianapolis_lat))
+    location.dot(5)
+    location.hideturtle()
+
     turtle.done()
     return
 
