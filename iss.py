@@ -6,13 +6,18 @@ __author__ = 'Mike Boring'
 
 import requests
 import turtle
+import time
 
 iss_current_longitude = 0
 iss_current_latitude = 0
 iss_current_timestamp = 0
+passover_risetime = 0
 
 
 def currently_in_space():
+    """
+    Return data of who is currently in space.
+    """
     req = requests.get(
         'http://api.open-notify.org/astros.json')
     converted_content = req.json()  # convert json
@@ -26,13 +31,16 @@ def currently_in_space():
 
 
 def find_space_station():
+    """
+    Find the current coordinates of the ISS.
+    """
     req = requests.get(
         'http://api.open-notify.org/iss-now.json')
     converted_content = req.json()  # convert json
     global iss_current_latitude
     global iss_current_longitude
     global iss_current_timestamp
-    iss_current_timestamp = converted_content['timestamp']  # timestamp
+    iss_current_timestamp = converted_content['timestamp']
     iss_position = converted_content['iss_position']
     iss_current_longitude = iss_position['longitude']
     iss_current_latitude = iss_position['latitude']
@@ -44,38 +52,57 @@ def find_space_station():
 
 
 def run_the_turtle():
+    """
+    Run the turtle to plot ISS on map, Indianapolis and Next Passover Date.
+    """
+    # setup the screen and background
     screen = turtle.Screen()
     screen.register_shape('iss.gif')
     screen.setup(720, 360)
     screen.bgpic("map.gif")
+    # setup the iss graphic
     iss = turtle.Turtle()
     iss.shape('iss.gif')
     iss.setheading(90)  # face upwards
     screen.setworldcoordinates(-180, -90, 180, 90)
     iss.penup()
     iss.goto(float(iss_current_longitude), float(iss_current_latitude))
-    print('iss lon:', iss_current_longitude)
-    print('iss lat:', iss_current_latitude)
     iss.pendown()
 
-    # Map Indianapolis on map
+    # Map Indianapolis on map and next passover date
     indianapolis_lat = 39.7684
     indianapolis_lon = -86.1581
-
     location = turtle.Turtle()
     location.penup()
     location.color('yellow')
     location.goto(float(indianapolis_lon), float(indianapolis_lat))
-    location.dot(5)
+    location.dot(10)
+    location.color('yellow')
+    style = ('Courier', 15)
+    location.write('Next ISS passover for\nIndianapolis, Indiana is\n' +
+                   passover_risetime + '.', font=style, align='left')
     location.hideturtle()
-
     turtle.done()
+    return
+
+
+def iss_passover():
+    """
+    Retireve the next ISS passover date
+    """
+    req = requests.get(
+        'http://api.open-notify.org/iss-pass.json?lat=39.7684&lon=-86.1581')
+    converted_content = req.json()  # convert json
+    global passover_risetime
+    passover_risetime = time.ctime(
+        converted_content['response'][0]['risetime'])
     return
 
 
 def main():
     currently_in_space()
     find_space_station()
+    iss_passover()
     run_the_turtle()
 
 
